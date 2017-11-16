@@ -19,9 +19,19 @@ These functions often receive an image, perform some visualization on the image.
 The functions do not return a value, instead they modify the image itself.
 
 """
+
+# Due to this being run on Kamiak, that doesn't have _tkinter, we have to set a
+# different backend otherwise it'll error
+# https://stackoverflow.com/a/40931739/2698494
+import os
+import matplotlib as mpl
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
+import matplotlib.pyplot as plt
+
 import collections
 import functools
-import matplotlib.pyplot as plt
 import numpy as np
 import PIL.Image as Image
 import PIL.ImageColor as ImageColor
