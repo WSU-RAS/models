@@ -272,13 +272,14 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
 class PascalDetectionEvaluator(ObjectDetectionEvaluator):
   """A class to evaluate detections using PASCAL metrics."""
 
-  def __init__(self, categories, matching_iou_threshold=0.5):
+  def __init__(self, categories, matching_iou_threshold=0.5, pickle_path=''):
     super(PascalDetectionEvaluator, self).__init__(
         categories,
         matching_iou_threshold=matching_iou_threshold,
         evaluate_corlocs=False,
         metric_prefix='PASCAL',
-        use_weighted_mean_ap=False)
+        use_weighted_mean_ap=False,
+        pickle_path=pickle_path)
 
 
 class WeightedPascalDetectionEvaluator(ObjectDetectionEvaluator):
@@ -295,13 +296,14 @@ class WeightedPascalDetectionEvaluator(ObjectDetectionEvaluator):
   tp_fp_labels.
   """
 
-  def __init__(self, categories, matching_iou_threshold=0.5):
+  def __init__(self, categories, matching_iou_threshold=0.5, pickle_path=''):
     super(WeightedPascalDetectionEvaluator, self).__init__(
         categories,
         matching_iou_threshold=matching_iou_threshold,
         evaluate_corlocs=False,
         metric_prefix='WeightedPASCAL',
-        use_weighted_mean_ap=True)
+        use_weighted_mean_ap=True,
+        pickle_path=pickle_path)
 
 
 class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
@@ -314,7 +316,8 @@ class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
   def __init__(self,
                categories,
                matching_iou_threshold=0.5,
-               evaluate_corlocs=False):
+               evaluate_corlocs=False,
+               pickle_path=''):
     """Constructor.
 
     Args:
@@ -329,7 +332,8 @@ class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
         categories,
         matching_iou_threshold,
         evaluate_corlocs,
-        metric_prefix='OpenImagesV2')
+        metric_prefix='OpenImagesV2',
+        pickle_path=pickle_path)
 
   def add_single_ground_truth_image_info(self, image_id, groundtruth_dict):
     """Adds groundtruth for a single image to be used for evaluation.
