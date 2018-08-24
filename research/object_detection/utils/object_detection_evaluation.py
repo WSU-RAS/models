@@ -31,6 +31,7 @@ from abc import ABCMeta
 from abc import abstractmethod
 import collections
 import logging
+import pickle
 import numpy as np
 
 from object_detection.core import standard_fields
@@ -611,6 +612,21 @@ class ObjectDetectionEvaluation(object):
     else:
       mean_ap = np.nanmean(self.average_precision_per_class)
     mean_corloc = np.nanmean(self.corloc_per_class)
+
+    # Hack to get precision and recall curves
+    data = (self.average_precision_per_class,
+            mean_ap,
+            self.precisions_per_class,
+            self.recalls_per_class,
+            self.corloc_per_class,
+            mean_corloc)
+    filename = "/data/vcea/matt.taylor/Projects/ras-object-detection/precision-recall.pickle"
+    try:
+        with open(filename, 'wb') as f:
+            pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+    except Exception as error:
+        print('Error saving', filename, ':', error)
+
     return ObjectDetectionEvalMetrics(
         self.average_precision_per_class, mean_ap, self.precisions_per_class,
         self.recalls_per_class, self.corloc_per_class, mean_corloc)
