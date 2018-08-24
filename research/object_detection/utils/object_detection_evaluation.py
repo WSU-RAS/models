@@ -107,6 +107,7 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
 
   def __init__(self,
                categories,
+               pickle_path='',
                matching_iou_threshold=0.5,
                evaluate_corlocs=False,
                metric_prefix=None,
@@ -126,6 +127,7 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
       use_weighted_mean_ap: (optional) boolean which determines if the mean
         average precision is computed directly from the scores and tp_fp_labels
         of all classes.
+      pickle_path: file to pickle the precision-recall curve to.
     """
     super(ObjectDetectionEvaluator, self).__init__(categories)
     self._num_classes = max([cat['id'] for cat in categories])
@@ -136,7 +138,9 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
         self._num_classes,
         matching_iou_threshold=self._matching_iou_threshold,
         use_weighted_mean_ap=self._use_weighted_mean_ap,
-        label_id_offset=self._label_id_offset)
+        label_id_offset=self._label_id_offset,
+        pickle_path=pickle_path,
+        categories=categories)
     self._image_ids = set([])
     self._evaluate_corlocs = evaluate_corlocs
     self._metric_prefix = (metric_prefix + '/') if metric_prefix else ''
@@ -392,12 +396,16 @@ class ObjectDetectionEvaluation(object):
                nms_iou_threshold=1.0,
                nms_max_output_boxes=10000,
                use_weighted_mean_ap=False,
-               label_id_offset=0):
+               label_id_offset=0,
+               pickle_path='',
+               categories=[]):
     self.per_image_eval = per_image_evaluation.PerImageEvaluation(
         num_groundtruth_classes, matching_iou_threshold, nms_iou_threshold,
         nms_max_output_boxes)
     self.num_class = num_groundtruth_classes
     self.label_id_offset = label_id_offset
+    self._pickle_path = pickle_path
+    self._categories = categories
 
     self.groundtruth_boxes = {}
     self.groundtruth_class_labels = {}
@@ -614,18 +622,18 @@ class ObjectDetectionEvaluation(object):
     mean_corloc = np.nanmean(self.corloc_per_class)
 
     # Hack to get precision and recall curves
-    data = (self.average_precision_per_class,
+    data = (self._categories,
+            self.average_precision_per_class,
             mean_ap,
             self.precisions_per_class,
             self.recalls_per_class,
             self.corloc_per_class,
             mean_corloc)
-    filename = "/data/vcea/matt.taylor/Projects/ras-object-detection/precision-recall.pickle"
     try:
-        with open(filename, 'wb') as f:
+        with open(self._pickle_path, 'wb') as f:
             pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
     except Exception as error:
-        print('Error saving', filename, ':', error)
+        print('Error saving', self._pickle_path, ':', error)
 
     return ObjectDetectionEvalMetrics(
         self.average_precision_per_class, mean_ap, self.precisions_per_class,

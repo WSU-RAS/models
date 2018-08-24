@@ -73,6 +73,8 @@ flags.DEFINE_string('input_config_path', '',
                     'Path to an input_reader_pb2.InputReader config file.')
 flags.DEFINE_string('model_config_path', '',
                     'Path to a model_pb2.DetectionModel config file.')
+flags.DEFINE_string('pickle_path', '',
+                    'Path (file) to save the precision-recall curve data to (a pickle file).')
 flags.DEFINE_boolean('run_once', False, 'Option to only run a single pass of '
                      'evaluation. Overrides the `max_evals` parameter in the '
                      'provided config.')
@@ -126,7 +128,7 @@ def main(unused_argv):
     eval_config.max_evals = 1
 
   evaluator.evaluate(create_input_dict_fn, model_fn, eval_config, categories,
-                     FLAGS.checkpoint_dir, FLAGS.eval_dir)
+                     FLAGS.checkpoint_dir, FLAGS.eval_dir, FLAGS.pickle_path)
 
 
 if __name__ == '__main__':

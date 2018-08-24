@@ -91,7 +91,7 @@ def _extract_prediction_tensors(model,
       scale_to_absolute=True)
 
 
-def get_evaluators(eval_config, categories):
+def get_evaluators(eval_config, categories, pickle_path):
   """Returns the evaluator class according to eval_config, valid for categories.
 
   Args:
@@ -108,12 +108,12 @@ def get_evaluators(eval_config, categories):
     raise ValueError('Metric not found: {}'.format(eval_metric_fn_key))
   return [
       EVAL_METRICS_CLASS_DICT[eval_metric_fn_key](
-          categories=categories)
+          categories=categories, pickle_path)
   ]
 
 
 def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
-             checkpoint_dir, eval_dir):
+             checkpoint_dir, eval_dir, pickle_path):
   """Evaluation function for detection models.
 
   Args:
@@ -124,6 +124,7 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
                 have an integer 'id' field and string 'name' field.
     checkpoint_dir: directory to load the checkpoints to evaluate from.
     eval_dir: directory to write evaluation metrics summary to.
+    pickle_path: file to pickle the precision-recall curve to.
 
   Returns:
     metrics: A dictionary containing metric names and values from the latest
@@ -195,7 +196,7 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
   metrics = eval_util.repeated_checkpoint_run(
       tensor_dict=tensor_dict,
       summary_dir=eval_dir,
-      evaluators=get_evaluators(eval_config, categories),
+      evaluators=get_evaluators(eval_config, categories, pickle_path),
       batch_processor=_process_batch,
       checkpoint_dirs=[checkpoint_dir],
       variables_to_restore=None,
@@ -207,6 +208,7 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
                                  if eval_config.max_evals else None),
       master=eval_config.eval_master,
       save_graph=eval_config.save_graph,
-      save_graph_dir=(eval_dir if eval_config.save_graph else ''))
+      save_graph_dir=(eval_dir if eval_config.save_graph else ''),
+      pickle_path=pickle_path)
 
   return metrics
