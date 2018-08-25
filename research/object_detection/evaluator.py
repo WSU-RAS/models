@@ -103,6 +103,7 @@ def get_evaluators(eval_config, categories, pickle_path):
   Raises:
     ValueError: if metric is not in the metric class dictionary.
   """
+
   eval_metric_fn_key = eval_config.metrics_set
   if eval_metric_fn_key not in EVAL_METRICS_CLASS_DICT:
     raise ValueError('Metric not found: {}'.format(eval_metric_fn_key))

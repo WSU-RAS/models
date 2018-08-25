@@ -637,7 +637,9 @@ class ObjectDetectionEvaluation(object):
         with open(self._pickle_path, 'wb') as f:
             pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
     except Exception as error:
-        print('Error saving', self._pickle_path, ':', error)
+        import sys
+        sys.stdout.write("Error saving %s: %s\n"%(self._pickle_path,error))
+        sys.stdout.flush()
 
     return ObjectDetectionEvalMetrics(
         self.average_precision_per_class, mean_ap, self.precisions_per_class,
